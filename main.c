@@ -14,6 +14,7 @@ void execute_command(char *command, char *pname)
 {
 	pid_t pid;
 	char *argv[2];
+	char *environ[1];
 
 	argv[0] = command;
 	argv[1] = NULL;
@@ -25,10 +26,11 @@ void execute_command(char *command, char *pname)
 	}
 	if (pid == 0)
 	{
-		if (execve(command, argv, NULL) == -1)
+		environ[0] = NULL;
+		if (execve(command, argv, environ) == -1)
 		{
 			perror(pname);
-			exit(EXIT_SUCCESS);
+			exit(127);
 		}
 	}
 	else
@@ -51,20 +53,20 @@ int main(int ac, char **av)
 	ssize_t read;
 	int prompt = 1;
 
-	if (!isatty(STDIN_FILENO)) 
+	if (!isatty(STDIN_FILENO))
 	{
 		prompt = 0;
 	}
 	while (1)
 	{
-		if(prompt)
+		if (prompt)
 			write(1, "$ ", 2);
 
 		read = getline(&line, &len, stdin);
 
 		if (read == -1)
 		{
-			return (0);
+			break;
 		}
 		else if (read == 1 && line[0] == '\n')
 		{
@@ -77,8 +79,10 @@ int main(int ac, char **av)
 
 		if (ac >= 0 && line != NULL)
 			execute_command(line, av[0]);
-	}
 
+		free(line);
+		line = NULL;
+	}
 	free(line);
 	return (0);
 }
