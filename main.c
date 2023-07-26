@@ -49,10 +49,16 @@ int main(int ac, char **av)
 	char *line = NULL;
 	size_t len = 0;
 	ssize_t read;
+	int prompt = 1;
 
+	if (!isatty(STDIN_FILENO)) 
+	{
+		prompt = 0;
+	}
 	while (1)
 	{
-		write(1, "$ ", 2);
+		if(prompt)
+			write(1, "$ ", 2);
 
 		read = getline(&line, &len, stdin);
 
