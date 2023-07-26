@@ -2,6 +2,7 @@
 #include <unistd.h>
 #include <stdlib.h>
 #include <sys/wait.h>
+#include <string.h>
 
 /**
  * execute_command - Execute a command in a child process.
@@ -13,11 +14,18 @@
 void execute_command(char *command, char *pname)
 {
 	pid_t pid;
-	char *argv[2];
-	char *environ[1];
+	char *environ[] = { (char *) "PATH=/bin", 0};
+	char *token;
+	char *argv[64];
+	int i = 0;
 
-	argv[0] = command;
-	argv[1] = NULL;
+	token = strtok(command, " ");
+	while (token != NULL)
+	{
+		argv[i++] = token;
+		token = strtok(NULL, " ");
+	}
+	argv[i] = NULL;
 	pid = fork();
 	if (pid == -1)
 	{
@@ -26,7 +34,6 @@ void execute_command(char *command, char *pname)
 	}
 	if (pid == 0)
 	{
-		environ[0] = NULL;
 		if (execve(command, argv, environ) == -1)
 		{
 			perror(pname);
