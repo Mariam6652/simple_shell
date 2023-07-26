@@ -6,13 +6,13 @@
 /**
  * execute_command - Execute a command in a child process.
  * @command: The command to be executed.
+ * @pname: the name of programe to display with error
  *
- * Return: 0 if success or 1 if errer
+ * Return: nothing
  */
-int execute_command(char *command)
+void execute_command(char *command, char *pname)
 {
 	pid_t pid;
-	int status;
 	char *argv[2];
 
 	argv[0] = command;
@@ -21,21 +21,20 @@ int execute_command(char *command)
 	if (pid == -1)
 	{
 		perror("Error");
-		return (1);
+		return;
 	}
-	else if (pid == 0)
+	if (pid == 0)
 	{
 		if (execve(command, argv, NULL) == -1)
 		{
-			perror(command);
-			return (1);
+			perror(pname);
+			exit(EXIT_SUCCESS);
 		}
 	}
 	else
 	{
-		wait(&status);
+		wait(NULL);
 	}
-	return (0);
 }
 
 /**
@@ -53,15 +52,13 @@ int main(int ac, char **av)
 
 	while (1)
 	{
-		printf("$ ");
-		fflush(stdout);
+		write(1, "$ ", 2);
 
 		read = getline(&line, &len, stdin);
 
 		if (read == -1)
 		{
-			printf("\n");
-			break;
+			return (0);
 		}
 		else if (read == 1 && line[0] == '\n')
 		{
@@ -72,11 +69,8 @@ int main(int ac, char **av)
 			line[read - 1] = '\0';
 		}
 
-		if (execute_command(line) > 0)
-		{
-			if (ac >= 0)
-				perror(av[0]);
-		}
+		if (ac >= 0 && line != NULL)
+			execute_command(line, av[0]);
 	}
 
 	free(line);
