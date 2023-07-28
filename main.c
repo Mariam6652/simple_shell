@@ -1,95 +1,4 @@
-#include <stdio.h>
-#include <unistd.h>
-#include <stdlib.h>
-#include <sys/wait.h>
-#include <string.h>
-#include <errno.h>
-/**
- * execute_command - Execute a command in a child process.
- * @command: The command to be executed.
- * @pname: the name of programe to display with error
- *
- * Return: nothing
- */
-void execute_command(char *command, char *pname)
-{
-	pid_t pid;
-	char *environ[] = { (char *) "PATH=/bin", 0}, *token, *argv[64];
-	int status, wait_result, i = 0;	
-
-	token = strtok(command, " ");
-	if (token == NULL)
-		return;
-	while (token != NULL)
-	{
-		argv[i++] = token;
-		token = strtok(NULL, " ");
-	}
-	argv[i] = NULL;
-	pid = fork();
-	if (pid == -1)
-		exit(1);
-	if (pid == 0)
-	{
-		if (execve(argv[0], argv, environ) == -1)
-		{
-			perror(pname);
-			exit(127);
-		}
-	}
-	else
-	{
-		do
-			wait_result = 	waitpid(pid, &status, 0);
-		while (wait_result == -1 && errno == EINTR);
-
-		if (wait_result == -1)
-			exit(1);
-		else
-			exit(status >> 8);
-	}
-}
-/**
- *  _strcmp - function that compares two strings.
- * @s1: the pointer to first string.
- * @s2: the pointer to second  string.
- * Return: diffrens between the strings
- */
-int _strcmp(char *s1, char *s2)
-{
-	int d = 0;
-	int c1 = 0;
-	int c2 = 0;
-	int s = 1;
-	char *p1 = s1;
-	char *p2 = s2;
-
-	while (*(p1 + c1) != '\0')
-	{
-		c1++;
-	}
-	while (*(p2 + c2) != '\0')
-	{
-		c2++;
-	}
-	if (c2 > c1)
-	{
-		p1 = s2;
-		p2 = s1;
-		s = -1;
-	}
-	while (*p1 != '\0')
-	{
-		d = (int)*p1 - (int)*p2;
-		p1++;
-		p2++;
-		if (d != 0)
-		{
-			return (d * s);
-		}
-	}
-return (d * s);
-}
+#include "shell.h"
 /**
  * main - Simple shell
  * @av : av is a NULL terminated array of strings.
@@ -102,7 +11,7 @@ int main(int ac, char **av, char **env)
 	char *line = NULL;
 	size_t len = 0;
 	ssize_t read;
-	int prompt = 1;
+	int i, prompt = 1;
 
 	if (!isatty(STDIN_FILENO))
 	{
@@ -128,10 +37,11 @@ int main(int ac, char **av, char **env)
 			i = 0;
 			while (env[i] != NULL)
 			{
-				write(1, env[i], len);
+				write(1, env[i], _strlen(env[i]));
 				write(1, "\n", 1);
 				i++;
 			}
+			continue;
 		}
 		if (ac >= 0 && line != NULL)
 			execute_command(line, av[0]);
