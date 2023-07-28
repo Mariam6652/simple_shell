@@ -15,7 +15,7 @@ void execute_command(char *command, char *pname)
 {
 	pid_t pid;
 	char *environ[] = { (char *) "PATH=/bin", 0}, *token, *argv[64];
-	int status, wait_result, i = 0;
+	int status, wait_result, i = 0;	
 
 	token = strtok(command, " ");
 	if (token == NULL)
@@ -97,7 +97,7 @@ return (d * s);
  * Return: Always 0.
  */
 
-int main(int ac, char **av)
+int main(int ac, char **av, char **env)
 {
 	char *line = NULL;
 	size_t len = 0;
@@ -123,6 +123,16 @@ int main(int ac, char **av)
 			line[read - 1] = '\0';
 		if (_strcmp(line, "exit") == 0)
 			break;
+		if (_strcmp(line, "env") == 0)
+		{
+			i = 0;
+			while (env[i] != NULL)
+			{
+				write(1, env[i], len);
+				write(1, "\n", 1);
+				i++;
+			}
+		}
 		if (ac >= 0 && line != NULL)
 			execute_command(line, av[0]);
 
