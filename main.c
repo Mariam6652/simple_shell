@@ -20,6 +20,8 @@ void execute_command(char *command, char *pname)
 	int i = 0;
 
 	token = strtok(command, " ");
+	if (token == NULL)
+		return;
 	while (token != NULL)
 	{
 		argv[i++] = token;
@@ -34,7 +36,7 @@ void execute_command(char *command, char *pname)
 	}
 	if (pid == 0)
 	{
-		if (execve(command, argv, environ) == -1)
+		if (execve(argv[0], argv, environ) == -1)
 		{
 			perror(pname);
 			exit(127);
