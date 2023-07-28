@@ -3,6 +3,7 @@
  * main - Simple shell
  * @av : av is a NULL terminated array of strings.
  * @ac : ac is the number of items in av.
+ * @env : the enviernment var
  * Return: Always 0.
  */
 
@@ -11,15 +12,11 @@ int main(int ac, char **av, char **env)
 	char *line = NULL;
 	size_t len = 0;
 	ssize_t read;
-	int i, prompt = 1;
+	int i;
 
-	if (!isatty(STDIN_FILENO))
-	{
-		prompt = 0;
-	}
 	while (1)
 	{
-		if (prompt)
+		if (isatty(STDIN_FILENO))
 			write(1, "$ ", 2);
 
 		read = getline(&line, &len, stdin);

@@ -10,7 +10,7 @@ void execute_command(char *command, char *pname)
 {
 	pid_t pid;
 	char *environ[] = { (char *) "PATH=/bin", 0}, *token, *argv[64];
-	int status, wait_result, i = 0;	
+	int status, wait_result, i = 0;
 
 	token = strtok(command, " ");
 	if (token == NULL)
@@ -35,7 +35,7 @@ void execute_command(char *command, char *pname)
 	else
 	{
 		do
-			wait_result = 	waitpid(pid, &status, 0);
+			wait_result = waitpid(pid, &status, 0);
 		while (wait_result == -1 && errno == EINTR);
 
 		if (wait_result == -1)
