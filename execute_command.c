@@ -3,14 +3,14 @@
  * execute_command - Execute a command in a child process.
  * @command: The command to be executed.
  * @pname: the name of programe to display with error
- *
+ * @env : the envirenment varable
  * Return: nothing
  */
-void execute_command(char *command, char *pname)
+void execute_command(char *command, char *pname, char **env)
 {
 	pid_t pid;
-	char *environ[] = { (char *) "PATH=/bin", 0}, *token, *argv[64];
-	int status, wait_result, i = 0;
+	char *argv[64], *token;
+	int status, i = 0;
 
 	token = strtok(command, " ");
 	if (token == NULL)
@@ -21,12 +21,17 @@ void execute_command(char *command, char *pname)
 		token = strtok(NULL, " ");
 	}
 	argv[i] = NULL;
+	if (access(argv[0], X_OK) == -1)
+	{
+		perror(pname);
+		return;
+	}
 	pid = fork();
 	if (pid == -1)
 		exit(1);
 	if (pid == 0)
 	{
-		if (execve(argv[0], argv, environ) == -1)
+		if (execve(argv[0], argv, env) == -1)
 		{
 			perror(pname);
 			exit(127);
@@ -34,13 +39,6 @@ void execute_command(char *command, char *pname)
 	}
 	else
 	{
-		do
-			wait_result = waitpid(pid, &status, 0);
-		while (wait_result == -1 && errno == EINTR);
-
-		if (wait_result == -1)
-			exit(1);
-		else
-			exit(status >> 8);
+		wait(&status);
 	}
 }

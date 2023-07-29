@@ -40,8 +40,8 @@ int main(int ac, char **av, char **env)
 			}
 			continue;
 		}
-		if (ac >= 0 && line != NULL)
-			execute_command(line, av[0]);
+		if (ac >= 0 || line != NULL)
+			execute_command(line, av[0], env);
 
 		free(line);
 		line = NULL;
